@@ -26,15 +26,20 @@ class Player(GameSprite):
             self.rect.y -= self.speed
         if keys_pressd[K_s] and self.rect.y:
             self.rect.y += self.speed
+    
 
-
+speed_x = 3
+speed_y = 2
 font.init()
-font2 = font.SysFont("Calibri", 30)
-window = display.set_mode((700, 500))
+font = font.SysFont("Calibri", 30)
+lose1 = font.render('PLAYER 1 LOST!',True, (0, 0, 0))
+lose2 = font.render('PLAYER 2 LOST!', True, (0, 0, 0))
+window = display.set_mode((800, 500))
 display.set_caption("Ping Pong")
-background = transform.scale(image.load("Ping-pong/pingpong.jpg"), (700, 500))
-line1 = Player('Ping-pong/line1.jpg', 30, 200, 50, 150, 4)
-line2 = Player('Ping-pong/line2.jpg', 630, 200, 50, 150, 4)
+background = transform.scale(image.load("Ping-pong/pingpong.jpg"), (800, 500))
+line1 = Player('Ping-pong/line1.jpg', 10, 200, 50, 150, 10)
+line2 = Player('Ping-pong/line2.jpg', 740, 200, 50, 150, 10)
+ball = GameSprite('Ping-pong/ball.png', 400, 250, 30, 30, 50)
 #parameters of the image sprite
 
 #game loop
@@ -47,10 +52,36 @@ while run:
 
     if finish != True:
         window.blit(background,(0, 0))
+        line2.update()
         line1.update2()
+        ball.rect.x += speed_x
+        ball.rect.y += speed_y
+
+        if sprite.collide_rect(line1, ball) or sprite.collide_rect(line2, ball):
+            speed_x *= -1
+            speed_y *= 1
+
+        if ball.rect.y > 500-50 or ball.rect.y < 0:
+            speed_y *= -1
+
+        if ball.rect.x < 0:
+            finish = True
+            window.blit(lose1, (400, 250))
+            game_over = True
+
+
+        if ball.rect.x > 800:
+            finish = True
+            window.blit(lose2, (400, 250))
+            game_over = True
+
+    for e in event.get():
+        if e.type == QUIT:
+            run = False
 
     line1.reset()
     line2.reset()
+    ball.reset()
 
     display.update ()
     clock.tick(FPS)
